@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<!--   Code by Andrey Ryabtsev (ryabtsev)   !-->
+<html>
+	<head>
+		<script>
+			function l(s){return document.getElementById(s);}
+			function hasClass(element, cls) {return (' ' + element.className + ' ').indexOf(' ' + cls + ' ') > -1;}
+		
+			const romaji = ["a", "i", "u", "e", "o", "ka", "ki", "ku", "ke", "ko", "sa", "shi", "su", "se", "so", 
+				"ta", "chi", "tsu", "te", "to", "na", "ni", "nu", "ne", "no", "ha", "hi", "fu", "he", "ho", "ma",
+				"mi", "mu", "me", "mo", "ya", " ", "yu", " ", "yo", "ra", "ri", "ru", "re", "ro", "wa", "wi", " ",
+				"we", "wo", "n", " ", " ", " ", " "];
+			const hiragana = ["あ", "い", "う", "え", "お", "か", "き", "く", "け", "こ", "さ", "し", "す", "せ", "そ", "た",
+				"ち", "つ", "て", "と", "な", "に", "ぬ", "ね", "の", "は", "ひ", "ふ", "へ", "ほ", "ま", "み", "む", "め",
+				"も", "や", " ", "ゆ", " ", "よ", "ら", "り", "る", "れ", "ろ", "わ", "ゐ", "　", "ゑ", "を", "ん", " ",
+				" ", " ", " ", " ", " "];
+			const katakana = ["ア", "イ", "ウ", "エ", "オ", "カ", "キ", "ク", "ケ", "コ", "サ", "シ", "ス", "セ", "ソ", "タ",
+				"チ", "ツ", "テ", "ト", "ナ", "ニ", "ヌ", "ネ", "ノ", "ハ", "ヒ", "フ", "ヘ", "ホ", "マ", "ミ", "ム", "メ",
+				"モ", "ヤ", " ", "ユ", " ", "ヨ", "ラ", "リ", "ル", "レ", "ロ", "ワ", "ヰ", "　", "ヱ", "ヲ", "ン", " ",
+				" ", " ", " ", " ", " "];
+			var japanese = [], selectedH = [], selectedK = [], selected = [], problems = [], n = 0, flipped = false,
+				reverse = false, isKatakana = false, currentIndex = -1, selecting = false, inCards = false, maxCards = 10, cardsStatistic = 0;
+			function assign(e)
+			{
+				reverse = e.currentTarget.id == "buttonCreateReverse";
+				inCards = true;
+				var panel = l("cards");
+				panel.innerHTML = "";
+				panel.style.visibility = "visible";
+				problems = [];
+				for(var i = 0; i < romaji.length; i++)
+				{
+					if(selected[i] && romaji[i] != " ")problems.push({romaji:romaji[i], japanese:japanese[i]});
+				}
+				n = problems.length;
+				cardsShown = 0;
+				currentIndex = -1;
+				var info = document.createElement('DIV');
+				info.id = "info";
+				info.className = "horizontalCentering"
+				panel.appendChild(info);
+				panel.appendChild(document.createElement('BR'));
+				var card = document.createElement('DIV');
+				card.id = "card";
+				card.className = "flashcard";
+				panel.appendChild(card);
+				card.style.left = (panel.offsetWidth / 2 - 150) + "px";
+				card.style.top = (panel.offsetHeight / 2 - 150) + "px";
+				info.style.top = (panel.offsetHeight / 2 - 200) + "px";
+				card.addEventListener("click", flipCard);
+				showCard();
+			}
+			function showCard()
+			{
+				if(currentIndex != -1)problems.splice(currentIndex,1);
+				flipped = false;
+				if(problems.length > 0 && cardsShown++ < maxCards)
+				{
+					cardsStatistic++;
+					l('info').innerHTML = (n - problems.length + 1) + "/" + Math.min(n, maxCards);
+					currentIndex = Math.floor(Math.random() * problems.length);
+					l('card').innerHTML = reverse ? "<i>" + problems[currentIndex].romaji + "</i>" : problems[currentIndex].japanese;
+					l('card').style.fontSize = reverse ? "130px" : "200px";
+				}
+				else
+				{
+					inCards = false;
+					l('cards').style.visibility = "hidden";
+				}
+			}
+			function flipCard()
+			{
+				if(flipped)
+				{
+					showCard();
+				}
+				else
+				{
+					flipped = true;
+					l('card').innerHTML = reverse ? problems[currentIndex].japanese : "<i>" + problems[currentIndex].romaji + "</i>";
+					l('card').style.fontSize = reverse ? "200px" : "130px";
+				}
+			}
+			function endSelect()
+			{
+				selecting = false;
+				l('selection').style.visibility = "hidden";
+				if(isKatakana)
+				{
+					selectedK = selected.slice(0);
+				}
+				else
+				{
+					selectedH = selected.slice(0);
+				}
+				stylizeMain();
+			}
+			function select()
+			{
+				selecting = true;
+				selected = isKatakana ? selectedK.slice(0) : selectedH.slice(0);
+				var panel = l("selection");
+				panel.innerHTML = "";
+				panel.style.visibility = "visible";
+				var step = Math.floor(Math.min((panel.offsetWidth - 100)/11,(panel.offsetHeight - 100)/6));
+				var startX = Math.floor(panel.offsetWidth / 2 + 5.5 * step),
+					startY = Math.floor(panel.offsetHeight / 2 - 3 * step + 20);
+				for(var i = 1; i <= 11; i++)
+				{
+					for(var j = 0; j <= 5; j++)
+					{
+						var num = (i-1)*5 + (j-1);
+						var newSymbol = document.createElement('DIV');
+						newSymbol.style.left = startX - step * i + step * 0.1 + "px";
+						newSymbol.style.top = startY + step * j - step * 0.1 + "px";
+						newSymbol.style.width = step * 0.8 + "px";
+						newSymbol.style.height = step * 0.8 + "px";
+						newSymbol.style.borderRadius = "3px";
+						var innerSymbol = document.createElement('DIV');
+						innerSymbol.style.width = step * 0.7 + "px";
+						innerSymbol.style.height = step * 0.7 + "px";
+						innerSymbol.style.left = step * 0.05 + "px";
+						innerSymbol.style.top = step * 0.05 + "px";
+						innerSymbol.style.lineHeight = step * 0.35 + "px";
+						innerSymbol.style.fontSize = step*0.3 + "px";
+						if(j != 0)
+						{
+							newSymbol.className = "selectionCharacter " + (selected[num]?"on":"off");
+							innerSymbol.className = "innerCharacter " + (selected[num]?"onI":"offI");
+							innerSymbol.innerHTML = japanese[num] + "<br><div style = 'font-size:" + step * 0.2 + "px'><i>" + romaji[num] + "</i></div>";
+							innerSymbol.id = "selector" + num;
+							innerSymbol.addEventListener("click", clickSelector);
+						}
+						else
+						{
+							newSymbol.className = "selectionCharacter on";
+							innerSymbol.className = "innerCharacter onI";
+							innerSymbol.id = "group" + (i-1);
+							innerSymbol.addEventListener("click", clickGroupSelector);
+						}
+						newSymbol.appendChild(innerSymbol);
+						panel.appendChild(newSymbol);
+					}
+					checkGroupSelector(i-1);
+				}
+				var bb = document.createElement('DIV');
+				bb.id = "backButton";
+				bb.innerHTML = "SAVE";
+				panel.appendChild(bb);
+				bb.addEventListener("click", endSelect);
+			}
+			function clickSelector(evt)
+			{
+				var sender = evt.currentTarget;
+				if(sender.className == "innerCharacter onI")
+				{
+					sender.className = "innerCharacter offI";
+					sender.parentElement.className = "selectionCharacter off";
+				}
+				else
+				{
+					sender.className = "innerCharacter onI";
+					sender.parentElement.className = "selectionCharacter on";
+				}
+				var num = sender.id.match(/\d+/)[0];
+				selected[num] = !selected[num];
+				checkGroupSelector(Math.floor(num/5));
+			}
+			function clickGroupSelector(evt)
+			{
+				var sender = evt.target;
+				var n = sender.id.match(/\d+/)[0];
+				var lit = false;
+				for(var i = 0; i < 5; i++)
+				{
+					if(selected[5 * n + i])lit = true;
+				}
+				for(var i = 0; i < 5; i++)
+				{
+					selected[n * 5 + i] = !lit;
+					var sel = l('selector' + (n * 5 + i));
+					if(lit)
+					{
+						sel.className = "innerCharacter offI";
+						sel.parentElement.className = "selectionCharacter off";
+					}
+					else
+					{
+						sel.className = "innerCharacter onI";
+						sel.parentElement.className = "selectionCharacter on";
+					}
+				}
+				sender.className = "innerCharacter " + (!lit?"onI":"offI");
+				sender.parentElement.className = "selectionCharacter " + (!lit?"on":"off");
+				
+			}
+			function checkGroupSelector(n)
+			{
+				var lit = false;
+				for(var i = 0; i < 5; i++)
+				{
+					if(selected[5 * n + i])lit = true;
+				}
+				var sender = l('group' + n);
+				sender.className = "innerCharacter " + (lit?"onI":"offI");
+				sender.parentElement.className = "selectionCharacter " + (lit?"on":"off");
+			}
+			function save()
+			{
+				if(typeof(Storage) === "undefined"){console.log("Unable to save: no storage availible.");return;};
+				localStorage.selectedH = JSON.stringify(selectedH);
+				localStorage.selectedK = JSON.stringify(selectedK);
+				localStorage.isKatakana = isKatakana ? "true" : "false";
+				localStorage.maxCards = maxCards;
+				localStorage.cardsStatistic = cardsStatistic;
+			}
+			function load()
+			{
+				if(typeof(Storage) === "undefined"){console.log("Unable to load: no storage availible.");return;};
+				if(localStorage.selectedH)selectedH = JSON.parse(localStorage.selectedH);
+				if(localStorage.selectedK)selectedK = JSON.parse(localStorage.selectedK);
+				if(localStorage.isKatakana)isKatakana = (localStorage.isKatakana === "true");
+				if(localStorage.maxCards)maxCards = parseInt(localStorage.maxCards);
+				if(localStorage.cardsStatistic)cardsStatistic = parseInt(localStorage.cardsStatistic);
+				japanese = isKatakana ? (katakana.slice(0)) : (hiragana.slice(0));
+				selected = isKatakana ? (selectedK.slice(0)) : (selectedH.slice(0));
+				stylizeMain();
+				selectCards(l(maxCards == 100 ? "buttonAll" : "button" + maxCards));
+			}
+			function adjustSize()//TODO
+			{
+				if(selecting)select();
+				else if(inCards) console.log("TODO");
+				else stylizeMain();
+			}
+			function stylizeMain()
+			{
+				var screen = l('main'), f1 = l('buttonCreate'), f2 = l('buttonCreateReverse'), selector = l('buttonSelect'), toggler = l('buttonToggle');
+				var w = Math.floor(screen.offsetWidth * 0.24), min = Math.min(screen.offsetHeight * 4, screen.offsetWidth);
+				f1.style.width = w + "px";
+				f2.style.width = w + "px";
+				selector.style.width = w + "px";
+				toggler.style.width = w + "px";
+				f1.style.left = Math.floor(screen.offsetWidth * 0.25) + "px";
+				f2.style.right = Math.floor(screen.offsetWidth * 0.25) + "px";
+				selector.style.left = Math.floor(screen.offsetWidth * 0.25) + "px";
+				toggler.style.right = Math.floor(screen.offsetWidth * 0.25) + "px";
+				f1.style.height = Math.floor(screen.offsetHeight * 0.25) + "px";
+				f2.style.height = Math.floor(screen.offsetHeight * 0.25) + "px";
+				selector.style.height = Math.floor(screen.offsetHeight * 0.2) + "px";
+				toggler.style.height = Math.floor(screen.offsetHeight * 0.2) + "px";
+				f1.style.top = Math.floor(screen.offsetHeight * 0.24) + "px";
+				f2.style.top = Math.floor(screen.offsetHeight * 0.24) + "px";
+				selector.style.bottom = Math.floor(screen.offsetHeight * 0.29) + "px";
+				toggler.style.bottom = Math.floor(screen.offsetHeight * 0.29) + "px";
+				f1.style.lineHeight = Math.floor(screen.offsetHeight * 0.125) + "px";
+				f2.style.lineHeight = Math.floor(screen.offsetHeight * 0.125) + "px";
+				selector.style.lineHeight = Math.floor(screen.offsetHeight * 0.1) + "px";
+				toggler.style.lineHeight = Math.floor(screen.offsetHeight * 0.1) + "px";
+				f1.style.fontSize = min * 0.03 + "px";
+				f2.style.fontSize = min * 0.03 + "px";
+				selector.style.fontSize = min * 0.03 + "px";
+				toggler.style.fontSize = min * 0.03 + "px";
+				nameButtons();
+				l('textMax').style.top = Math.floor(screen.offsetHeight * 0.72) + "px";
+				l('textMax').style.fontSize = Math.floor(screen.offsetHeight * 0.02) + "px";
+				l('buttons').style.width = Math.floor(screen.offsetWidth * 0.5) + "px";
+				l('buttons').style.top = Math.floor(screen.offsetHeight * 0.76) + "px";
+				l('button10').style.width = Math.floor(screen.offsetWidth * 0.1) + "px";
+				l('button15').style.width = Math.floor(screen.offsetWidth * 0.1) + "px";
+				l('button25').style.width = Math.floor(screen.offsetWidth * 0.1) + "px";
+				l('buttonAll').style.width = Math.floor(screen.offsetWidth * 0.1) + "px";
+				l('button10').style.left = Math.floor(screen.offsetWidth * 0.0125) + "px";
+				l('button15').style.left = Math.floor(screen.offsetWidth * 0.1375) + "px";
+				l('button25').style.left = Math.floor(screen.offsetWidth * 0.2625) + "px";
+				l('buttonAll').style.left = Math.floor(screen.offsetWidth * 0.3875) + "px";
+				l('textTitle').style.fontSize = min * 0.04 + "px";
+				l('textTitle').style.top = Math.floor(screen.offsetHeight * 0.1) + "px";
+			}
+			function nameButtons()
+			{
+				l('buttonCreate').innerHTML = "FLASHCARDS<br>(" + japanese[0] + ", then A)";
+				l('buttonCreateReverse').innerHTML = "FLASHCARDS<br>(A, then " + japanese[0] + ")";
+				l('buttonSelect').innerHTML = "SELECT<br>CHARACTERS";
+				l('buttonToggle').innerHTML = isKatakana ? "カタカナ<br>(Katakana)" : "ひらがな<br>(Hiragana)";
+			}
+			function clearFourButtons()
+			{
+				l('button10').style.backgroundColor = "rgba(255, 255, 255, 0.95)";
+				l('button15').style.backgroundColor = "rgba(255, 255, 255, 0.95)"; 
+				l('button25').style.backgroundColor = "rgba(255, 255, 255, 0.95)";
+				l('buttonAll').style.backgroundColor = "rgba(255, 255, 255, 0.95)";
+				l('button10').style.color = "black";
+				l('button15').style.color = "black";
+				l('button25').style.color = "black";
+				l('buttonAll').style.color = "black";
+			}
+			function selectCards(button)
+			{
+				clearFourButtons();
+				button.style.backgroundColor = "#002266";
+				button.style.color = "rgba(255, 255, 255, 0.95)";
+				maxCards = (button.id == "buttonAll" ? 100 : parseInt(button.id.match(/\d+/)[0]));
+			}
+			function cardsButton(e)
+			{
+				selectCards(e.currentTarget);
+			}
+			function toggle()
+			{
+				isKatakana = !isKatakana; //TODO
+				japanese = isKatakana ? (katakana.slice(0)) : (hiragana.slice(0));
+				selected = isKatakana ? (selectedK.slice(0)) : (selectedH.slice(0));
+				nameButtons();
+			}
+			window.onload = function()
+			{
+				window.addEventListener("beforeunload", save);
+				window.addEventListener("resize", adjustSize);
+				l("buttonCreate").addEventListener("click", assign);
+				l("buttonCreateReverse").addEventListener("click", assign);
+				l("buttonSelect").addEventListener("click", select);
+				l("buttonToggle").addEventListener("click", toggle);
+				l("button10").addEventListener("click", cardsButton);
+				l("button15").addEventListener("click", cardsButton);
+				l("button25").addEventListener("click", cardsButton);
+				l("buttonAll").addEventListener("click", cardsButton);
+				
+				for(var i = 0; i < romaji.length; i++)
+				{
+					selectedH.push(true);
+					selectedK.push(true);
+				}
+				load();
+			}
+		</script>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta content="utf-8" http-equiv="encoding">
+		<style>
+			#backButton
+			{
+				font-family: "Courier";
+				font-weight: bold;
+				font-size: 36px;
+				color: white;
+				cursor: pointer;
+			}
+			body
+			{
+				font-family: "Yu Mincho Light", Yu, "sans-serif";
+			}
+			#textMax
+			{
+				color: rgba(255, 255, 255, 0.95);
+			}
+			.flashcard
+			{
+				position:absolute;
+				text-align: center;
+				cursor: pointer;
+				background-color: rgba(255, 255, 255, 0.95);
+				border: 6px solid;
+				width: 300px;
+				height: 300px;
+				line-height: 300px;
+			}
+			#info
+			{
+				font-size: 36px;
+				color: white;
+			}
+			.horizontalCentering
+			{
+				display: inline-block;
+				position:absolute;
+				margin-left: auto;
+				margin-right: auto;
+				left: 0;
+				right: 0;
+			}
+			.screenOverlay
+			{
+				position:absolute;
+				top:0px;
+				left:0px;
+				width:100%;
+				height:100%;
+				background-color:#001133;
+				text-align: center;
+			}
+			.unselectable
+			{
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none; 
+			}
+			.selectionCharacter
+			{
+				position: absolute;
+				border: 4px solid;
+			}
+			.innerCharacter
+			{
+				position: absolute;
+				text-align: center;
+				cursor: pointer;
+			}
+			.menuButton
+			{
+				background-color: rgba(255, 255, 255, 0.95);
+				position: absolute;
+				text-align: center;
+				cursor: pointer;
+				border-radius: 8px;
+			}
+			.onI {background-color: rgba(255, 255, 255, 0.95);}
+			.offI {background-color: rgba(255, 255, 255, 0.25);}
+			.on {border-color: rgba(255, 255, 255, 0.95);}
+			.off {border-color: rgba(255, 255, 255, 0.25);}
+		</style>
+	</head>
+	<body>
+		<div class = 'unselectable screenOverlay' id='main' style = 'visibility:visible;'>
+			<div class='horizontalCentering' id = 'textTitle' style = 'color:rgba(255, 255, 255, 0.95);'>JAPANESE KANA PRACTICE</div>
+			<div class='menuButton' id = 'buttonCreate'></div>
+			<div class='menuButton' id = 'buttonCreateReverse'></div>
+			<div class='menuButton' id = 'buttonSelect'></div>
+			<div class='menuButton' id = 'buttonToggle'></div>
+			<div class='horizontalCentering' id = 'textMax'>MAX CARDS AT ONCE</div>
+			<div class='horizontalCentering' id = 'buttons'>
+				<div class='menuButton' id = 'button10' style = 'left: 0;'>10</div>
+				<div class='menuButton' id = 'button15' style = 'left: 30%;'>15</div>
+				<div class='menuButton' id = 'button25' style = 'left: 63%;'>25</div>
+				<div class='menuButton' id = 'buttonAll' style = 'right: 0;'>ALL</div>
+			</div>
+		</div>
+		<div class = 'unselectable screenOverlay' id='selection' style = 'visibility:hidden;'></div>
+		<div class = 'unselectable screenOverlay' id='cards' style = 'visibility:hidden; text-align: center;'></div>
+	</body>
+</html>
