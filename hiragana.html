@@ -3,23 +3,35 @@
 <html>
 	<head>
 		<script>
-			function l(s){return document.getElementById(s);}
-			function hasClass(element, cls) {return (' ' + element.className + ' ').indexOf(' ' + cls + ' ') > -1;}
+			function l(s){
+				return document.getElementById(s);
+			}
+			function hasClass(element, cls) {
+				return (' ' + element.className + ' ').indexOf(' ' + cls + ' ') > -1;
+			}
 		
-			const romaji = ["a", "i", "u", "e", "o", "ka", "ki", "ku", "ke", "ko", "sa", "shi", "su", "se", "so", 
-				"ta", "chi", "tsu", "te", "to", "na", "ni", "nu", "ne", "no", "ha", "hi", "fu", "he", "ho", "ma",
-				"mi", "mu", "me", "mo", "ya", " ", "yu", " ", "yo", "ra", "ri", "ru", "re", "ro", "wa", "wi", " ",
-				"we", "wo", "n", " ", " ", " ", " "];
-			const hiragana = ["あ", "い", "う", "え", "お", "か", "き", "く", "け", "こ", "さ", "し", "す", "せ", "そ", "た",
-				"ち", "つ", "て", "と", "な", "に", "ぬ", "ね", "の", "は", "ひ", "ふ", "へ", "ほ", "ま", "み", "む", "め",
-				"も", "や", " ", "ゆ", " ", "よ", "ら", "り", "る", "れ", "ろ", "わ", "ゐ", "　", "ゑ", "を", "ん", " ",
-				" ", " ", " ", " ", " "];
-			const katakana = ["ア", "イ", "ウ", "エ", "オ", "カ", "キ", "ク", "ケ", "コ", "サ", "シ", "ス", "セ", "ソ", "タ",
-				"チ", "ツ", "テ", "ト", "ナ", "ニ", "ヌ", "ネ", "ノ", "ハ", "ヒ", "フ", "ヘ", "ホ", "マ", "ミ", "ム", "メ",
-				"モ", "ヤ", " ", "ユ", " ", "ヨ", "ラ", "リ", "ル", "レ", "ロ", "ワ", "ヰ", "　", "ヱ", "ヲ", "ン", " ",
-				" ", " ", " ", " ", " "];
-			var japanese = [], selectedH = [], selectedK = [], selected = [], problems = [], n = 0, flipped = false,
-				reverse = false, isKatakana = false, currentIndex = -1, selecting = false, inCards = false, maxCards = 10, cardsStatistic = 0;
+			const romaji = ["a", "i", "u", "e", "o", "ka", "ki", "ku", "ke", "ko", "sa", "shi",
+				"su", "se", "so", "ta", "chi", "tsu", "te", "to", "na", "ni", "nu", "ne", "no",
+				"ha", "hi", "fu", "he", "ho", "ma",	"mi", "mu", "me", "mo", "ya", " ", "yu", " ",
+				"yo", "ra", "ri", "ru", "re", "ro", "wa", "wi", " ", "we", "wo", "n", " ", " ",
+				" ", " "];
+			const hiragana = ["あ", "い", "う", "え", "お", "か", "き", "く", "け", "こ", "さ", "し", "す",
+				"せ", "そ", "た",	"ち", "つ", "て", "と", "な", "に", "ぬ", "ね", "の", "は", "ひ", "ふ",
+				"へ", "ほ", "ま", "み", "む", "め", "も", "や", " ", "ゆ", " ", "よ", "ら", "り", "る",
+				"れ", "ろ", "わ", "ゐ", "　", "ゑ", "を", "ん", " ", " ", " ", " ", " ", " "];
+			const katakana = ["ア", "イ", "ウ", "エ", "オ", "カ", "キ", "ク", "ケ", "コ", "サ", "シ", "ス",
+				"セ", "ソ", "タ",	"チ", "ツ", "テ", "ト", "ナ", "ニ", "ヌ", "ネ", "ノ", "ハ", "ヒ", "フ",
+				"ヘ", "ホ", "マ", "ミ", "ム", "メ", "モ", "ヤ", " ", "ユ", " ", "ヨ", "ラ", "リ", "ル", "レ",
+				"ロ", "ワ", "ヰ", "　", "ヱ", "ヲ", "ン", " ",	" ", " ", " ", " ", " "];
+			var japanese = [], selectedH = [], selectedK = [], selected = [], problems = [],
+				n = 0,
+				flipped = false,
+				reverse = false,
+				isKatakana = false,
+				currentIndex = -1,
+				selecting = false,
+				inCards = false,
+				maxCards = 10;
 			function assign(e)
 			{
 				reverse = e.currentTarget.id == "buttonCreateReverse";
@@ -30,7 +42,8 @@
 				problems = [];
 				for(var i = 0; i < romaji.length; i++)
 				{
-					if(selected[i] && romaji[i] != " ")problems.push({romaji:romaji[i], japanese:japanese[i]});
+					if(selected[i] && romaji[i] != " ") 
+						problems.push({romaji:romaji[i], japanese:japanese[i]});
 				}
 				n = problems.length;
 				cardsShown = 0;
@@ -52,14 +65,15 @@
 			}
 			function showCard()
 			{
-				if(currentIndex != -1)problems.splice(currentIndex,1);
+				if(currentIndex != -1) problems.splice(currentIndex,1);
 				flipped = false;
 				if(problems.length > 0 && cardsShown++ < maxCards)
 				{
-					cardsStatistic++;
 					l('info').innerHTML = (n - problems.length + 1) + "/" + Math.min(n, maxCards);
 					currentIndex = Math.floor(Math.random() * problems.length);
-					l('card').innerHTML = reverse ? "<i>" + problems[currentIndex].romaji + "</i>" : problems[currentIndex].japanese;
+					l('card').innerHTML = reverse
+						? "<i>" + problems[currentIndex].romaji + "</i>"
+						: problems[currentIndex].japanese;
 					l('card').style.fontSize = reverse ? "130px" : "200px";
 				}
 				else
@@ -77,7 +91,9 @@
 				else
 				{
 					flipped = true;
-					l('card').innerHTML = reverse ? problems[currentIndex].japanese : "<i>" + problems[currentIndex].romaji + "</i>";
+					l('card').innerHTML = reverse
+						? problems[currentIndex].japanese
+						: "<i>" + problems[currentIndex].romaji + "</i>";
 					l('card').style.fontSize = reverse ? "200px" : "130px";
 				}
 			}
@@ -102,14 +118,15 @@
 				var panel = l("selection");
 				panel.innerHTML = "";
 				panel.style.visibility = "visible";
-				var step = Math.floor(Math.min((panel.offsetWidth - 100)/11,(panel.offsetHeight - 100)/6));
+				var step = Math.floor(Math.min((panel.offsetWidth - 100) / 11, 
+					(panel.offsetHeight - 100) / 6));
 				var startX = Math.floor(panel.offsetWidth / 2 + 5.5 * step),
 					startY = Math.floor(panel.offsetHeight / 2 - 3 * step + 20);
 				for(var i = 1; i <= 11; i++)
 				{
 					for(var j = 0; j <= 5; j++)
 					{
-						var num = (i-1)*5 + (j-1);
+						var num = (i - 1) * 5 + (j - 1);
 						var newSymbol = document.createElement('DIV');
 						newSymbol.style.left = startX - step * i + step * 0.1 + "px";
 						newSymbol.style.top = startY + step * j - step * 0.1 + "px";
@@ -122,12 +139,13 @@
 						innerSymbol.style.left = step * 0.05 + "px";
 						innerSymbol.style.top = step * 0.05 + "px";
 						innerSymbol.style.lineHeight = step * 0.35 + "px";
-						innerSymbol.style.fontSize = step*0.3 + "px";
+						innerSymbol.style.fontSize = step * 0.3 + "px";
 						if(j != 0)
 						{
-							newSymbol.className = "selectionCharacter " + (selected[num]?"on":"off");
+							newSymbol.className = "selectionCharacter " + (selected[num] ? "on" : "off");
 							innerSymbol.className = "innerCharacter " + (selected[num]?"onI":"offI");
-							innerSymbol.innerHTML = japanese[num] + "<br><div style = 'font-size:" + step * 0.2 + "px'><i>" + romaji[num] + "</i></div>";
+							innerSymbol.innerHTML = japanese[num] + "<br><div style = 'font-size:" +
+								step * 0.2 + "px'><i>" + romaji[num] + "</i></div>";
 							innerSymbol.id = "selector" + num;
 							innerSymbol.addEventListener("click", clickSelector);
 						}
@@ -141,7 +159,7 @@
 						newSymbol.appendChild(innerSymbol);
 						panel.appendChild(newSymbol);
 					}
-					checkGroupSelector(i-1);
+					checkGroupSelector(i - 1);
 				}
 				var bb = document.createElement('DIV');
 				bb.id = "backButton";
@@ -164,7 +182,7 @@
 				}
 				var num = sender.id.match(/\d+/)[0];
 				selected[num] = !selected[num];
-				checkGroupSelector(Math.floor(num/5));
+				checkGroupSelector(Math.floor(num / 5));
 			}
 			function clickGroupSelector(evt)
 			{
@@ -190,8 +208,8 @@
 						sel.parentElement.className = "selectionCharacter on";
 					}
 				}
-				sender.className = "innerCharacter " + (!lit?"onI":"offI");
-				sender.parentElement.className = "selectionCharacter " + (!lit?"on":"off");
+				sender.className = "innerCharacter " + (!lit ? "onI" : "offI");
+				sender.parentElement.className = "selectionCharacter " + (!lit ? "on" : "off");
 				
 			}
 			function checkGroupSelector(n)
@@ -202,26 +220,30 @@
 					if(selected[5 * n + i])lit = true;
 				}
 				var sender = l('group' + n);
-				sender.className = "innerCharacter " + (lit?"onI":"offI");
-				sender.parentElement.className = "selectionCharacter " + (lit?"on":"off");
+				sender.className = "innerCharacter " + (lit ? "onI" : "offI");
+				sender.parentElement.className = "selectionCharacter " + (lit ? "on" : "off");
 			}
 			function save()
 			{
-				if(typeof(Storage) === "undefined"){console.log("Unable to save: no storage availible.");return;};
+				if(typeof(Storage) === "undefined"){
+					console.log("Unable to save: no storage availible.");
+					return;
+				}
 				localStorage.selectedH = JSON.stringify(selectedH);
 				localStorage.selectedK = JSON.stringify(selectedK);
 				localStorage.isKatakana = isKatakana ? "true" : "false";
 				localStorage.maxCards = maxCards;
-				localStorage.cardsStatistic = cardsStatistic;
 			}
 			function load()
 			{
-				if(typeof(Storage) === "undefined"){console.log("Unable to load: no storage availible.");return;};
+				if(typeof(Storage) === "undefined"){
+					console.log("Unable to load: no storage availible.");
+					return;
+				}
 				if(localStorage.selectedH)selectedH = JSON.parse(localStorage.selectedH);
 				if(localStorage.selectedK)selectedK = JSON.parse(localStorage.selectedK);
 				if(localStorage.isKatakana)isKatakana = (localStorage.isKatakana === "true");
 				if(localStorage.maxCards)maxCards = parseInt(localStorage.maxCards);
-				if(localStorage.cardsStatistic)cardsStatistic = parseInt(localStorage.cardsStatistic);
 				japanese = isKatakana ? (katakana.slice(0)) : (hiragana.slice(0));
 				selected = isKatakana ? (selectedK.slice(0)) : (selectedH.slice(0));
 				stylizeMain();
@@ -235,8 +257,13 @@
 			}
 			function stylizeMain()
 			{
-				var screen = l('main'), f1 = l('buttonCreate'), f2 = l('buttonCreateReverse'), selector = l('buttonSelect'), toggler = l('buttonToggle');
-				var w = Math.floor(screen.offsetWidth * 0.24), min = Math.min(screen.offsetHeight * 4, screen.offsetWidth);
+				var screen = l('main'),
+					f1 = l('buttonCreate'),
+					f2 = l('buttonCreateReverse'),
+					selector = l('buttonSelect'),
+					toggler = l('buttonToggle'),
+					w = Math.floor(screen.offsetWidth * 0.24),
+					min = Math.min(screen.offsetHeight * 4, screen.offsetWidth);
 				f1.style.width = w + "px";
 				f2.style.width = w + "px";
 				selector.style.width = w + "px";
@@ -282,7 +309,8 @@
 				l('buttonCreate').innerHTML = "FLASHCARDS<br>(" + japanese[0] + ", then A)";
 				l('buttonCreateReverse').innerHTML = "FLASHCARDS<br>(A, then " + japanese[0] + ")";
 				l('buttonSelect').innerHTML = "SELECT<br>CHARACTERS";
-				l('buttonToggle').innerHTML = isKatakana ? "カタカナ<br>(Katakana)" : "ひらがな<br>(Hiragana)";
+				l('buttonToggle').innerHTML = isKatakana
+												? "カタカナ<br>(Katakana)" : "ひらがな<br>(Hiragana)";
 			}
 			function clearFourButtons()
 			{
